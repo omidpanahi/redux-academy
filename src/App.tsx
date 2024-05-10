@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import UserDetails from './components/UserDetails'
 import { getUsers } from './data/apiCalls'
 import { transformUsers } from './data/transformers/user'
@@ -8,6 +8,7 @@ import Dropdown from './components/Dropdown'
 import { UserModel } from './types/models/user'
 import { UiState } from './constants/uiState'
 import { getPageNumber } from './state/page-number/selectors'
+import { actions } from './state/page-number/slice'
 
 const SORT_OPTIONS = [
   { value: 'asc', title: 'Id ⬆️' },
@@ -18,10 +19,11 @@ const SORT_OPTIONS = [
 type SortOptionsValue = (typeof SORT_OPTIONS)[number]['value']
 
 const App = () => {
+  const dispatch = useDispatch()
   const [userList, setUserList] = useState<Array<UserModel>>([])
   const [uiState, setUiState] = useState(UiState.Idle)
   const [selectedSort, setSelectedSort] = useState<SortOptionsValue>('asc')
-  const page = useSelector(getPageNumber)
+  const pageNumber = useSelector(getPageNumber)
   // console.log(page)
   const handleFetchData = useCallback(async () => {
     setUiState(UiState.Pending)
@@ -82,8 +84,8 @@ const App = () => {
       <div>{sortedUsers.map(renderUser)}</div>
       <hr />
       <h4>Page: {pageNumber}</h4>
-      <button onClick={() => setPageNumber((prev) => prev - 1)}>Previous</button>
-      <button onClick={() => setPageNumber((prev) => prev + 1)}>Next</button>
+      <button onClick={() => dispatch(actions.decrement())}>Previous</button>
+      <button onClick={() => dispatch(actions.increment())}>Next</button>
     </div>
   )
 }
