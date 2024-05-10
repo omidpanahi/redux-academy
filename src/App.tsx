@@ -17,6 +17,7 @@ const SORT_OPTIONS = [
 type SortOptionsValue = (typeof SORT_OPTIONS)[number]['value']
 
 const App = () => {
+  const [pageNumber, setPageNumber] = useState<number>(1)
   const [userList, setUserList] = useState<Array<UserModel>>([])
   const [uiState, setUiState] = useState(UiState.Idle)
   const [selectedSort, setSelectedSort] = useState<SortOptionsValue>('asc')
@@ -25,7 +26,7 @@ const App = () => {
     setUiState(UiState.Pending)
 
     try {
-      const { data } = await getUsers()
+      const { data } = await getUsers(pageNumber)
 
       const transformedResponse = transformUsers(data.data)
 
@@ -36,7 +37,7 @@ const App = () => {
       console.log(error)
       setUiState(UiState.Error)
     }
-  }, [])
+  }, [pageNumber])
 
   const sortedUsers = userList.sort((a, b) => {
     if (selectedSort === 'asc') return a.id - b.id
@@ -48,7 +49,7 @@ const App = () => {
 
   useEffect(() => {
     handleFetchData()
-  }, [handleFetchData])
+  }, [handleFetchData, pageNumber])
 
   const renderUser = ({ id, email, firstName, lastName }: UserModel) => {
     return (
@@ -71,13 +72,17 @@ const App = () => {
 
   return (
     <div>
-      <button onClick={handleFetchData}>♻️</button>
+      <button onClick={handleFetchData}>GET USERS ♻️</button>
       <Dropdown
         options={SORT_OPTIONS}
         selectedValue={selectedSort}
         onSelectedChange={setSelectedSort}
       />
       <div>{sortedUsers.map(renderUser)}</div>
+      <hr />
+      <h4>Page: {pageNumber}</h4>
+      <button onClick={() => setPageNumber((prev) => prev - 1)}>Previous</button>
+      <button onClick={() => setPageNumber((prev) => prev + 1)}>Next</button>
     </div>
   )
 }
