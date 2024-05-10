@@ -2,25 +2,25 @@ import { createSlice, CaseReducer, PayloadAction } from '@reduxjs/toolkit'
 import { stateName } from './constant'
 import { UsersState } from './types'
 import { UiState } from '../../constants/uiState'
-import { getUsers } from '../../data/apiCalls'
-import { transformUsers } from '../../data/transformers/user'
+import { UserModel } from '../../types/models/user'
 
 const initialState: UsersState = {
   users: [],
   uiState: UiState.Idle,
 }
 
-const fetchUsersRequest: CaseReducer<UsersState, PayloadAction<{ pageNumber: number }>> = (draft, action) => {
+const fetchUsersRequest: CaseReducer<UsersState> = (draft) => {
   draft.uiState = UiState.Pending;
+}
 
-  getUsers(action.payload.pageNumber).then(({ data }) => {
-    const transformedResponse = transformUsers(data.data)
-    draft.users = transformedResponse
-    draft.uiState = UiState.Success
-  }).catch((error) => {
-    console.log(error)
-    draft.uiState = UiState.Error
-  })
+const fetchUsersSuccess: CaseReducer<UsersState, PayloadAction<{ users: UserModel[] }>> = (draft, action) => {
+  draft.users = action.payload.users
+  draft.uiState = UiState.Success
+}
+
+const fetchUsersFailure: CaseReducer<UsersState, PayloadAction<{ errorObj: unknown }>> = (draft, action) => {
+  console.log(action.payload.errorObj)
+  draft.uiState = UiState.Error
 }
 
 export const usersSlice = createSlice({
@@ -28,8 +28,8 @@ export const usersSlice = createSlice({
   initialState,
   reducers: {
     fetchUsersRequest,
-    // fetchUsersSuccess,
-    // fetchUsersFailure,
+    fetchUsersSuccess,
+    fetchUsersFailure,
   },
 })
 
