@@ -35,22 +35,13 @@ const App = () => {
 
     return b.id - a.id
   })
-  const handleFetchData = useCallback(async (pageNumber: number) => {
+  const handleFetchData = useCallback(async () => {
     dispatch(usersActions.fetchUsersRequest())
-
-    try {
-      const { data } = await fetchUsers(pageNumber)
-
-      const transformedResponse = transformUsers(data.data)
-      dispatch(usersActions.fetchUsersSuccess({ users: transformedResponse }))
-    } catch (error) {
-      dispatch(usersActions.fetchUsersFailure({ errorObj: error }))
-    }
-  }, [dispatch])
+  }, [])
   
   useEffect(() => {
-    handleFetchData(pageNumber)
-  }, [pageNumber, dispatch, handleFetchData])
+    handleFetchData()
+  }, [])
 
   const renderUser = ({ id, email, firstName, lastName }: UserModel) => {
     return (
@@ -73,7 +64,7 @@ const App = () => {
 
   return (
     <div>
-      <button onClick={() => handleFetchData(pageNumber)}>GET USERS ♻️</button>
+      <button onClick={() => handleFetchData()}>GET USERS ♻️</button>
       <Dropdown
         options={SORT_OPTIONS}
         selectedValue={selectedSort}

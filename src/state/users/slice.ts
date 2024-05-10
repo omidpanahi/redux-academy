@@ -18,8 +18,7 @@ const fetchUsersSuccess: CaseReducer<UsersState, PayloadAction<{ users: UserMode
   draft.uiState = UiState.Success
 }
 
-const fetchUsersFailure: CaseReducer<UsersState, PayloadAction<{ errorObj: unknown }>> = (draft, action) => {
-  console.log(action.payload.errorObj)
+const fetchUsersFailure: CaseReducer<UsersState> = (draft) => {
   draft.uiState = UiState.Error
 }
 
