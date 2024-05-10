@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import UserDetails from './components/UserDetails'
-import { getUsers } from './data/apiCalls'
-import { transformUsers } from './data/transformers/user'
 import HighlightWrapper from './components/HighlightWrapper'
 import Dropdown from './components/Dropdown'
 import { UserModel } from './types/models/user'
 import { UiState } from './constants/uiState'
 import { getPageNumber } from './state/page-number/selectors'
-import { actions } from './state/page-number/slice'
+import { actions as pageNumberActions } from './state/page-number/slice'
+import { actions as usersActions } from './state/users/slice'
+import { getUsers } from './state/users/selectors'
 
 const SORT_OPTIONS = [
   { value: 'asc', title: 'Id ⬆️' },
@@ -20,27 +20,10 @@ type SortOptionsValue = (typeof SORT_OPTIONS)[number]['value']
 
 const App = () => {
   const dispatch = useDispatch()
-  const [userList, setUserList] = useState<Array<UserModel>>([])
-  const [uiState, setUiState] = useState(UiState.Idle)
+
   const [selectedSort, setSelectedSort] = useState<SortOptionsValue>('asc')
   const pageNumber = useSelector(getPageNumber)
-  // console.log(page)
-  const handleFetchData = useCallback(async () => {
-    setUiState(UiState.Pending)
-
-    try {
-      const { data } = await getUsers(pageNumber)
-
-      const transformedResponse = transformUsers(data.data)
-
-      setUserList(transformedResponse)
-
-      setUiState(UiState.Success)
-    } catch (error) {
-      console.log(error)
-      setUiState(UiState.Error)
-    }
-  }, [pageNumber])
+  const userList = useSelector(getUsers);
 
   const sortedUsers = userList.sort((a, b) => {
     if (selectedSort === 'asc') return a.id - b.id
@@ -49,10 +32,11 @@ const App = () => {
 
     return b.id - a.id
   })
-
+  const handleFetchData = (pageNumber: number) => dispatch(usersActions.fetchUsersRequest({ pageNumber }))
+  
   useEffect(() => {
-    handleFetchData()
-  }, [handleFetchData, pageNumber])
+    handleFetchData(pageNumber)
+  }, [pageNumber, dispatch, handleFetchData])
 
   const renderUser = ({ id, email, firstName, lastName }: UserModel) => {
     return (
@@ -84,8 +68,8 @@ const App = () => {
       <div>{sortedUsers.map(renderUser)}</div>
       <hr />
       <h4>Page: {pageNumber}</h4>
-      <button onClick={() => dispatch(actions.decrement())}>Previous</button>
-      <button onClick={() => dispatch(actions.increment())}>Next</button>
+      <button onClick={() => dispatch(pageNumberActions.decrement())}>Previous</button>
+      <button onClick={() => dispatch(pageNumberActions.increment())}>Next</button>
     </div>
   )
 }
