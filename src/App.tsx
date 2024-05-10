@@ -59,7 +59,7 @@ const App = () => {
 
   return (
     <div>
-      <button onClick={handleFetchData}>GET USERS ♻️</button>
+      <button onClick={() => handleFetchData(pageNumber)}>GET USERS ♻️</button>
       <Dropdown
         options={SORT_OPTIONS}
         selectedValue={selectedSort}
