@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import UserDetails from './components/UserDetails'
 import HighlightWrapper from './components/HighlightWrapper'
@@ -8,7 +8,9 @@ import { UiState } from './constants/uiState'
 import { getPageNumber } from './state/page-number/selectors'
 import { actions as pageNumberActions } from './state/page-number/slice'
 import { actions as usersActions } from './state/users/slice'
-import { getUsers } from './state/users/selectors'
+import { getUiState, getUsers } from './state/users/selectors'
+import { fetchUsers } from './data/apiCalls'
+import { transformUsers } from './data/transformers/user'
 
 const SORT_OPTIONS = [
   { value: 'asc', title: 'Id ⬆️' },
@@ -24,15 +26,27 @@ const App = () => {
   const [selectedSort, setSelectedSort] = useState<SortOptionsValue>('asc')
   const pageNumber = useSelector(getPageNumber)
   const userList = useSelector(getUsers);
+  const uiState = useSelector(getUiState);
 
-  const sortedUsers = userList.sort((a, b) => {
+  const sortedUsers = [...userList].sort((a, b) => {
     if (selectedSort === 'asc') return a.id - b.id
 
     if (selectedSort === 'dsc') return a.firstName.localeCompare(b.firstName)
 
     return b.id - a.id
   })
-  const handleFetchData = (pageNumber: number) => dispatch(usersActions.fetchUsersRequest({ pageNumber }))
+  const handleFetchData = useCallback(async (pageNumber: number) => {
+    dispatch(usersActions.fetchUsersRequest())
+
+    try {
+      const { data } = await fetchUsers(pageNumber)
+
+      const transformedResponse = transformUsers(data.data)
+      dispatch(usersActions.fetchUsersSuccess({ users: transformedResponse }))
+    } catch (error) {
+      dispatch(usersActions.fetchUsersFailure({ errorObj: error }))
+    }
+  }, [dispatch])
   
   useEffect(() => {
     handleFetchData(pageNumber)
