@@ -18,11 +18,10 @@ const SORT_OPTIONS = [
 type SortOptionsValue = (typeof SORT_OPTIONS)[number]['value']
 
 const App = () => {
-  const [pageNumber, setPageNumber] = useState<number>(1)
   const [userList, setUserList] = useState<Array<UserModel>>([])
   const [uiState, setUiState] = useState(UiState.Idle)
   const [selectedSort, setSelectedSort] = useState<SortOptionsValue>('asc')
-  // const page = useSelector(getPageNumber)
+  const page = useSelector(getPageNumber)
   // console.log(page)
   const handleFetchData = useCallback(async () => {
     setUiState(UiState.Pending)
