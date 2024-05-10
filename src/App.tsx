@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-
+import { useSelector } from 'react-redux'
 import UserDetails from './components/UserDetails'
 import { getUsers } from './data/apiCalls'
 import { transformUsers } from './data/transformers/user'
@@ -7,6 +7,7 @@ import HighlightWrapper from './components/HighlightWrapper'
 import Dropdown from './components/Dropdown'
 import { UserModel } from './types/models/user'
 import { UiState } from './constants/uiState'
+import { getPageNumber } from './state/page-number/selectors'
 
 const SORT_OPTIONS = [
   { value: 'asc', title: 'Id ⬆️' },
@@ -21,7 +22,8 @@ const App = () => {
   const [userList, setUserList] = useState<Array<UserModel>>([])
   const [uiState, setUiState] = useState(UiState.Idle)
   const [selectedSort, setSelectedSort] = useState<SortOptionsValue>('asc')
-
+  // const page = useSelector(getPageNumber)
+  // console.log(page)
   const handleFetchData = useCallback(async () => {
     setUiState(UiState.Pending)
 
