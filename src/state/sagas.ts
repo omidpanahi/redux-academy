@@ -21,7 +21,7 @@ function* fetchUsersSaga(): any {
 
 function* mySaga() {
     yield takeLatest(usersActions.fetchUsersRequest.type, fetchUsersSaga)
-    // todo: add more sagas for inc/dec page number
+    // todo: add more sagas for inc/dec page number (dont't forget to pass the page number in payload)
 }
 
 export default mySaga
