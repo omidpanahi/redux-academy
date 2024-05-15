@@ -1,21 +1,18 @@
-import { put, takeLatest, call } from "redux-saga/effects"
+import { put, takeLatest, call, StrictEffect } from "redux-saga/effects"
 import { actions as usersActions } from './users/slice'
 import { transformUsers } from "../data/transformers/user"
 import { fetchUsers } from "../data/apiCalls"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function* fetchUsersSaga(): any {
-    try {
-        // todo: handle payload
-      const { data } = yield call(fetchUsers)
+import { PayloadAction } from "@reduxjs/toolkit"
+import { GetUsersResponse } from "../types/responses"
 
-      const transformedResponse = transformUsers(data.data)
-    //   dispatch(usersActions.fetchUsersSuccess({ users: transformedResponse }))
+function* fetchUsersSaga({ payload: pageNumber }: PayloadAction<number>): Generator<StrictEffect, void, {data: GetUsersResponse}>{
+    try {
+      const { data } = yield call(fetchUsers, pageNumber) 
+      const transformedResponse = transformUsers(data.data) 
       yield put(usersActions.fetchUsersSuccess({ users: transformedResponse }))
     } catch (error) {
-    //   dispatch(usersActions.fetchUsersFailure({ errorObj: error }))
-     console.error(error);
-     yield put(usersActions.fetchUsersFailure());
+     yield put(usersActions.fetchUsersFailure({error: (error as Error).message}));
     }
 }
 
