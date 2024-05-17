@@ -8,9 +8,7 @@ import { UiState } from './constants/uiState'
 import { getPageNumber } from './state/page-number/selectors'
 import { actions as pageNumberActions } from './state/page-number/slice'
 import { actions as usersActions } from './state/users/slice'
-import { getUiState, getUsers } from './state/users/selectors'
-import { fetchUsers } from './data/apiCalls'
-import { transformUsers } from './data/transformers/user'
+import { getErrors, getUiState, getUsers } from './state/users/selectors'
 
 const SORT_OPTIONS = [
   { value: 'asc', title: 'Id ⬆️' },
@@ -25,8 +23,9 @@ const App = () => {
 
   const [selectedSort, setSelectedSort] = useState<SortOptionsValue>('asc')
   const pageNumber = useSelector(getPageNumber)
-  const userList = useSelector(getUsers);
-  const uiState = useSelector(getUiState);
+  const userList = useSelector(getUsers)
+  const uiState = useSelector(getUiState)
+  const usersError = useSelector(getErrors)
 
   const sortedUsers = [...userList].sort((a, b) => {
     if (selectedSort === 'asc') return a.id - b.id
@@ -36,12 +35,12 @@ const App = () => {
     return b.id - a.id
   })
   const handleFetchData = useCallback(async () => {
-    dispatch(usersActions.fetchUsersRequest())
-  }, [])
+    dispatch(usersActions.fetchUsersRequest(pageNumber))
+  }, [pageNumber])
   
   useEffect(() => {
     handleFetchData()
-  }, [])
+  }, [pageNumber])
 
   const renderUser = ({ id, email, firstName, lastName }: UserModel) => {
     return (
@@ -60,7 +59,7 @@ const App = () => {
 
   if (uiState === UiState.Pending) return <div>Loading...</div>
 
-  if (uiState === UiState.Error) return <div>Something went wrong...</div>
+  if (uiState === UiState.Error) return <div>{usersError}</div>
 
   return (
     <div>

@@ -5,6 +5,7 @@ import { stateName } from "./constant"
 export type UsersState = {
     users: Array<UserModel>
     uiState: UiState
+    errors: string
 }
 
 export type AllState = { [key in typeof stateName]: UsersState }

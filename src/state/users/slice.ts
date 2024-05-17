@@ -7,19 +7,21 @@ import { UserModel } from '../../types/models/user'
 const initialState: UsersState = {
   users: [],
   uiState: UiState.Idle,
+  errors: ''
 }
 
-const fetchUsersRequest: CaseReducer<UsersState> = (draft) => {
+const fetchUsersRequest: CaseReducer<UsersState,  PayloadAction<number>> = (draft) => {
   draft.uiState = UiState.Pending;
 }
 
-const fetchUsersSuccess: CaseReducer<UsersState, PayloadAction<{ users: UserModel[] }>> = (draft, action) => {
+const fetchUsersSuccess: CaseReducer<UsersState, PayloadAction<{ users: UserModel[]}>> = (draft, action) => {
   draft.users = action.payload.users
   draft.uiState = UiState.Success
 }
 
-const fetchUsersFailure: CaseReducer<UsersState> = (draft) => {
+const fetchUsersFailure: CaseReducer<UsersState, PayloadAction<{error: string}>> = (draft, action) => {
   draft.uiState = UiState.Error
+  draft.errors = action.payload.error;
 }
 
 export const usersSlice = createSlice({
